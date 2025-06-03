@@ -106,7 +106,7 @@ def generate_ideal_answer(question, role):
     prompt = f"""
 You are an expert interview coach preparing candidates for a {role} role.
 
-Provide a model answer to the following interview question. Use a professional tone, include real-world logic, and format clearly (e.g., STAR method if applicable).
+Provide a concise  model answer to the following interview question. Use a professional tone, include real-world logic, and format clearly (e.g., STAR method if applicable).also try  to  implement mood engaging language
 
 Interview Question:
 \"\"\"{question}\"\"\"
@@ -229,7 +229,7 @@ if st.session_state.get("messages"):
 
 
             # Next question
-            st.markdown("### 👉 Next Question")
+            st.markdown("👉 Next Question")
             st.write(response)
         else:
             st.warning("Please enter your answer before submitting.")
