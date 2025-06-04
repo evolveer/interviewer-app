@@ -9,7 +9,10 @@ import pytest
 import os
 from openai import OpenAI
 
-# Dummy functions to simulate your actual app logic
+# Dummy functions to simulate your actual app logic if the function are working, but not if the performance is not as expected.
+# These should be replaced with the actual functions from your app
+# Version 0.0.1
+# Note: Ensure these functions are imported from your actual app file
 # Replace these with actual imports from your app file
 
 def evaluate_answer(question, answer):
