@@ -37,8 +37,13 @@ st.write("Practice answering interview questions with an AI-generated interviewe
 # Sidebar for parameters
 st.sidebar.header("Settings")
 temperature = st.sidebar.slider("Creativity (temperature)", 0.0, 1.0, 0.7)
+frequency_penalty = st.sidebar.slider("Frequency Penalty", 0.0, 2.0, 1.0)
+presence_penalty = st.sidebar.slider("Presence Penalty", 0.0, 2.0, 1.0)
+
+top_p = st.sidebar.slider("Top P", 0.0, 1.0, 0.1)
+
 difficulty = st.sidebar.selectbox("Difficulty Level", ["Easy", "Medium", "Hard"])
-wordcount = st.sidebar.slider("Max Ideal Answer Word Count(words)", 50, 100, 200)
+wordcount = st.sidebar.slider("Max Ideal Answer Word Count(words)", 50, 200, 100)
 
 # User input
 job_role = st.text_input("Job Role (e.g., Software Engineer, HR Manager)", "Technical Project Manager")
@@ -51,7 +56,7 @@ if "messages" not in st.session_state:
 # System prompt
 def get_system_prompt(role, difficulty_level):
     return f"""
-You are a professional interview coach simulating a {difficulty_level.lower()} interview for the role of {role} using the {temperature} temperature setting.        
+You are a professional interview coach simulating a {difficulty_level.lower()} interview for the role of {role}         
 Ask concise, focused questions that are easy to understand and answer.
 Limit each question to a maximum of 2 sentences or 30 words.    
 Ask one question at a time. Use formal but simple language.
@@ -66,6 +71,12 @@ def get_ai_response(messages):
         response = client.chat.completions.create(
             model="gpt-4o",
             temperature=temperature,
+
+            frequency_penalty=frequency_penalty,
+            presence_penalty=presence_penalty,
+            top_p=top_p,
+            max_tokens=100,
+
             messages=messages
         )
         return response.choices[0].message.content
@@ -175,7 +186,11 @@ Message:
     except Exception as e:
         return "🤖 Error", f"Mood analysis error: {str(e)}"
 
-
+def expensive_api(prompt):
+    # Simulate a time-consuming or costly call
+    import time
+    time.sleep(2)
+    return f"Processed response for: '{prompt}'"
 
 
 def rate_answer(interview_question, user_answer):
@@ -200,6 +215,7 @@ if st.button("Start Practice"):
         st.warning("Please enter a job role.")
     else:
         system_prompt = get_system_prompt(job_role, difficulty)
+        st.session_state.query_count = 0  # Reset query count for new session
         st.session_state.messages = [{"role": "system", "content": system_prompt}]
         initial_prompt = custom_question if custom_question else "Ask me an interview question."
         st.session_state.messages.append({"role": "user", "content": initial_prompt})
@@ -212,6 +228,15 @@ if st.button("Start Practice"):
 if st.session_state.get("messages"):
     user_reply = st.text_area("Your Answer:", key="user_reply")
     if st.button("Submit Answer"):
+        if 'query_count' not in st.session_state:
+            st.session_state.query_count = 0
+        st.session_state.query_count += 1
+
+        if st.session_state.query_count > 5:
+            st.warning("Usage limit reached for this session.")
+        else:
+            expensive_api(user_reply)  # Simulate an expensive API call
+
         if user_reply.strip():
             # Append user response
             st.session_state.messages.append({"role": "user", "content": user_reply})
