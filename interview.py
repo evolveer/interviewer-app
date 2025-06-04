@@ -326,7 +326,7 @@ if st.session_state.get("messages"):
                 st.write(mood_explanation)
 
             # --- Ideal Answer ---
-            ideal_answer = generate_ideal_answer_based_on_user_input(last_question, job_role)
+            ideal_answer = generate_ideal_answer_based_on_user_input(user_reply, last_question)
             st.markdown("Improved  Answer based on your input")
             with st.expander("Show Model Answer"):
                 st.write(ideal_answer)
