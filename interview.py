@@ -1,3 +1,21 @@
+
+## Interview Practice App
+# A Streamlit app that simulates an AI interview coach for practice interviews.
+# This app allows users to practice answering interview questions with an AI-generated interviewer.
+# Requirements:
+# - OpenAI API key stored in a .env file
+# - Streamlit for the web interface
+# - Matplotlib for visualizing evaluation scores
+# - Pandas for data manipulation
+# Install required packages if not already installed
+# pip install streamlit openai matplotlib pandas python-dotenv  
+# Import necessary libraries
+# Author: Kyra Cole
+# Date: 2025-06-03
+# Version: 1.0
+#   
+## This code is licensed under the MIT License.
+
 import os
 import streamlit as st
 from openai import OpenAI
@@ -5,7 +23,6 @@ from dotenv import load_dotenv
 import matplotlib.pyplot as plt
 import pandas as pd
 import re
-
 
 # Load API key
 load_dotenv()
@@ -21,6 +38,7 @@ st.write("Practice answering interview questions with an AI-generated interviewe
 st.sidebar.header("Settings")
 temperature = st.sidebar.slider("Creativity (temperature)", 0.0, 1.0, 0.7)
 difficulty = st.sidebar.selectbox("Difficulty Level", ["Easy", "Medium", "Hard"])
+wordcount = st.sidebar.slider("Max Ideal Answer Word Count(words)", 50, 100, 200)
 
 # User input
 job_role = st.text_input("Job Role (e.g., Software Engineer, HR Manager)", "Technical Project Manager")
@@ -39,6 +57,9 @@ Limit each question to a maximum of 2 sentences or 30 words.
 Ask one question at a time. Use formal but simple language.
 Focus on both technical and behavioral aspects appropriate to the role.
 """
+
+
+
 # --- OpenAI API call ---
 def get_ai_response(messages):
     try:
@@ -58,6 +79,7 @@ You are a professional interview coach. Evaluate the following answer.
 
 Question: {question}
 Answer: {answer}
+penalize for verbosity, and focus on concise, clear responses.
 
 Give ratings (1–5) for:
 - Relevance
@@ -94,6 +116,7 @@ Feedback: <text>
         return scores, feedback
     except Exception as e:
         return {}, f"Evaluation error: {str(e)}"
+    
 def display_score_chart(scores: dict):
     df = pd.DataFrame(list(scores.items()), columns=["Metric", "Score"])
     fig, ax = plt.subplots()
@@ -102,11 +125,12 @@ def display_score_chart(scores: dict):
     ax.set_xlabel("Score (1–5)")
     ax.set_title("Answer Evaluation")
     st.pyplot(fig)
+
 def generate_ideal_answer(question, role):
     prompt = f"""
 You are an expert interview coach preparing candidates for a {role} role.
 
-Provide a concise  model answer to the following interview question. Use a professional tone, include real-world logic, and format clearly (e.g., STAR method if applicable).also try  to  implement mood engaging language
+Provide a concise  model answer to the following interview question using max word count{wordcount}. Use a professional tone, include real-world logic, and format clearly (e.g., STAR method if applicable).also try  to  implement mood engaging language
 
 Interview Question:
 \"\"\"{question}\"\"\"
@@ -181,7 +205,7 @@ if st.button("Start Practice"):
         st.session_state.messages.append({"role": "user", "content": initial_prompt})
         response = get_ai_response(st.session_state.messages)
         st.session_state.messages.append({"role": "assistant", "content": response})
-        st.markdown("### Interview Coach:")
+        st.markdown("Interview Coach:")
         st.write(response)
 
 # User response input (after Start is pressed)
@@ -222,7 +246,7 @@ if st.session_state.get("messages"):
 
             # --- Ideal Answer ---
             ideal_answer = generate_ideal_answer(last_question, job_role)
-            st.markdown(" Ideal Answer")
+            st.markdown("Ideal Answer")
             with st.expander("Show Model Answer"):
                 st.write(ideal_answer)
 
