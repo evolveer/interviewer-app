@@ -12,7 +12,7 @@
 # Import necessary libraries
 # Author: Kyra Cole
 # Date: 2025-06-03
-# Version: 1.0
+# Version: 1.1
 #   
 ## This code is licensed under the MIT License.
 
@@ -24,7 +24,7 @@ import matplotlib.pyplot as plt
 import pandas as pd
 import re
 
-# Load API key
+# Load API key important security measure
 load_dotenv()
 client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
 
@@ -112,13 +112,18 @@ Feedback: <text>
     try:
         response = client.chat.completions.create(
             model="gpt-4o",
+            temperature=temperature,
+            frequency_penalty=frequency_penalty,
+            presence_penalty=presence_penalty,
+            top_p=top_p,
+            max_tokens=100,
             messages=[{"role": "user", "content": eval_prompt}]
         ).choices[0].message.content
 
         # Extract scores
         scores = {}
         for key in ["Relevance", "Clarity", "Technical Accuracy", "Depth", "Communication"]:
-            match = re.search(f"{key}: (\d)", response)
+            match = re.search(rf"{key}: (\d)", response)
             scores[key] = int(match.group(1)) if match else 0
 
         feedback_match = re.search(r"Feedback:\s*(.+)", response, re.DOTALL)
@@ -149,11 +154,51 @@ Interview Question:
     try:
         response = client.chat.completions.create(
             model="gpt-4o",
+            temperature=temperature,
+            frequency_penalty=frequency_penalty,
+            presence_penalty=presence_penalty,
+            top_p=top_p,
+            max_tokens=100,
             messages=[{"role": "user", "content": prompt}]
         )
         return response.choices[0].message.content.strip()
     except Exception as e:
         return f"Ideal answer generation error: {str(e)}"
+
+
+def generate_ideal_answer_based_on_user_input(user_input, question):
+    prompt = f"""
+You are an expert interview coach. Your task is to improve the following user answer to make it ideal for a job interview.
+
+Interview Question: "{question}"
+
+User's Original Answer: "{user_input}"
+
+
+Please rewrite the answer to:
+- Be clear, concise, and professional
+- Highlight relevant skills and achievements
+- Use a confident tone
+- Stay factually consistent with the user's original input
+- Use a maximum of {wordcount}
+- Use also mood engaging language
+
+Respond with the improved (ideal) answer only.
+"""
+    try:
+        response = client.chat.completions.create(
+            model="gpt-4",
+            temperature=temperature,
+            frequency_penalty=frequency_penalty,
+            presence_penalty=presence_penalty,
+            top_p=top_p,
+            max_tokens=100,
+            messages=[{"role": "user", "content": prompt}]
+        )
+        # remember message is not a dictionary, but a list of choices
+        return response.choices[0].message.content
+    except Exception as e:
+        return "🤖 Error", f"improved answer error: {str(e)}"
 
 
 def analyze_mood(ai_message):
@@ -175,6 +220,11 @@ Message:
     try:
         response = client.chat.completions.create(
             model="gpt-4o",
+            temperature=temperature,
+            frequency_penalty=frequency_penalty,
+            presence_penalty=presence_penalty,
+            top_p=top_p,
+            max_tokens=100,
             messages=[{"role": "user", "content": mood_prompt}]
         ).choices[0].message.content
 
@@ -204,6 +254,11 @@ Answer: {user_answer}
 """
     response = client.chat.completions.create(
         model="gpt-4o",
+        temperature=temperature,
+        frequency_penalty=frequency_penalty,
+        presence_penalty=presence_penalty,
+        top_p=top_p,
+        max_tokens=100,
         messages=[{"role": "user", "content": eval_prompt}]
     )
     return response.choices[0].message.content
@@ -228,6 +283,7 @@ if st.button("Start Practice"):
 if st.session_state.get("messages"):
     user_reply = st.text_area("Your Answer:", key="user_reply")
     if st.button("Submit Answer"):
+        # 2nd API security check
         if 'query_count' not in st.session_state:
             st.session_state.query_count = 0
         st.session_state.query_count += 1
@@ -270,8 +326,8 @@ if st.session_state.get("messages"):
                 st.write(mood_explanation)
 
             # --- Ideal Answer ---
-            ideal_answer = generate_ideal_answer(last_question, job_role)
-            st.markdown("Ideal Answer")
+            ideal_answer = generate_ideal_answer_based_on_user_input(last_question, job_role)
+            st.markdown("Improved  Answer based on your input")
             with st.expander("Show Model Answer"):
                 st.write(ideal_answer)
 
