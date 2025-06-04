@@ -203,7 +203,7 @@ Respond with the improved (ideal) answer only.
 
 def analyze_mood(ai_message):
     mood_prompt = f"""
-Analyze the tone of the following interviewer message. Choose one mood label from:
+imagine you are an Job interviewer. Analyze the tone of the following  message. Choose one mood label from:
 - Encouraging 😊
 - Challenging 😐
 - Supportive 👍
@@ -242,6 +242,8 @@ def expensive_api(prompt):
     time.sleep(2)
     return f"Processed response for: '{prompt}'"
 
+def clear_reply():
+    st.session_state["user_reply"] = ""
 
 def rate_answer(interview_question, user_answer):
     eval_prompt = f"""
@@ -282,7 +284,9 @@ if st.button("Start Practice"):
 # User response input (after Start is pressed)
 if st.session_state.get("messages"):
     user_reply = st.text_area("Your Answer:", key="user_reply")
+   
     if st.button("Submit Answer"):
+       
         # 2nd API security check
         if 'query_count' not in st.session_state:
             st.session_state.query_count = 0
@@ -336,8 +340,11 @@ if st.session_state.get("messages"):
             # Next question
             st.markdown("👉 Next Question")
             st.write(response)
+            #  Clear the input field
+  
         else:
             st.warning("Please enter your answer before submitting.")
 
+    
 
 
