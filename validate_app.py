@@ -2,7 +2,7 @@
 
 """
 Validation Script for Streamlit Interview Practice App
-Author: Kyra Cole (adapted by ChatGPT)
+Author: Kyra Cole (adapted by ChatGPT the first version 0.0.1)
 """
 
 import pytest
