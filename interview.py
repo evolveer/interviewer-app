@@ -45,9 +45,7 @@ top_p = st.sidebar.slider("Top P", 0.0, 1.0, 0.1)
 difficulty = st.sidebar.selectbox("Difficulty Level", ["Easy", "Medium", "Hard"])
 wordcount = st.sidebar.slider("Max Ideal Answer Word Count(words)", 50, 200, 100)
 
-# User input
-job_role = st.text_input("Job Role (e.g., Software Engineer, HR Manager)", "Technical Project Manager")
-custom_question = st.text_area("Ask a specific interview question (optional)")
+
 
 # --- Session state for conversation ---
 if "messages" not in st.session_state:
@@ -203,7 +201,7 @@ Respond with the improved (ideal) answer only.
 
 def analyze_mood(ai_message):
     mood_prompt = f"""
-imagine you are an Job interviewer. Analyze the tone of the following  message. Choose one mood label from:
+You are an expert interview coach.  Analyze the tone of the following  message from the applicant. Choose one mood label from:
 - Encouraging 😊
 - Challenging 😐
 - Supportive 👍
@@ -213,7 +211,7 @@ imagine you are an Job interviewer. Analyze the tone of the following  message. 
 
 Return only the label and emoji on the first line.
 Then provide a brief explanation on the next line.
-
+Provide tips what the applicant can do to improve the mood of the interviewer.
 Message:
 \"\"\"{ai_message}\"\"\"
 """
@@ -263,33 +261,63 @@ Answer: {user_answer}
         max_tokens=100,
         messages=[{"role": "user", "content": eval_prompt}]
     )
+
+
     return response.choices[0].message.content
 
 
+#need to ensure the interview has not started and all session state variables are initialized
+if "interview_started" not in st.session_state:
+    st.session_state.interview_started = False
+
+if not st.session_state.interview_started:
+    job_role = st.text_input(
+        "Job Role (e.g., Software Engineer, HR Manager)",
+        "Technical Project Manager",
+        key="job_role_input"
+    )
+    st.session_state.query_count = 0 # Initialize query count
+    custom_question = st.text_area("Ask a specific interview question (optional)",key="job_question_custom")
+
 # Start interview
-if st.button("Start Practice"):
+if st.button("Start Practice", key="start_practice_main") and not st.session_state.interview_started:
     if not job_role:
         st.warning("Please enter a job role.")
     else:
+        st.session_state.interview_started = True  # Set flag
+        st.session_state.job_role = job_role  # Save job role
+        st.session_state.query_count = 0
+
+                    # Get AI reply
+
         system_prompt = get_system_prompt(job_role, difficulty)
-        st.session_state.query_count = 0  # Reset query count for new session
         st.session_state.messages = [{"role": "system", "content": system_prompt}]
-        initial_prompt = custom_question if custom_question else "Ask me an interview question."
-        st.session_state.messages.append({"role": "user", "content": initial_prompt})
-        response = get_ai_response(st.session_state.messages)
-        st.session_state.messages.append({"role": "assistant", "content": response})
-        st.markdown("Interview Coach:")
-        st.write(response)
+        first_question = get_ai_response(st.session_state.messages)
+        st.session_state.initial_prompt = custom_question if custom_question else first_question
+
+        st.session_state.messages.append({"role": "user", "content": st.session_state.initial_prompt})
+        
+
+
+        # Force UI to update and hide the start button + input boxes
+        
+
+
 
 # User response input (after Start is pressed)
 if st.session_state.get("messages"):
+    if 'query_count' not in st.session_state or st.session_state.query_count is 0:
+        response = st.session_state.initial_prompt
+        st.markdown("👉 First Question")
+        st.write(response)
     user_reply = st.text_area("Your Answer:", key="user_reply")
    
-    if st.button("Submit Answer"):
+    if st.button("Submit Answer", key="submit_answer") and st.session_state.interview_started:
        
         # 2nd API security check
-        if 'query_count' not in st.session_state:
+        if 'query_count' not in st.session_state or st.session_state.query_count is None:
             st.session_state.query_count = 0
+
         st.session_state.query_count += 1
 
         if st.session_state.query_count > 5:
@@ -301,7 +329,7 @@ if st.session_state.get("messages"):
             # Append user response
             st.session_state.messages.append({"role": "user", "content": user_reply})
 
-            # Get AI reply
+            # Get AI question
             response = get_ai_response(st.session_state.messages)
             st.session_state.messages.append({"role": "assistant", "content": response})
 
