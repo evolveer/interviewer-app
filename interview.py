@@ -492,24 +492,15 @@ Message:
         # Store response for debugging if debug mode is enabled
         store_api_request_response(request_data, response, st.session_state.get("debug_mode", False))
         
-        # Validate response
-        validation_result = api_validator.validate_openai_response(response, "mood_analysis")
         
-        if not validation_result["is_valid"]:
-            for error in validation_result["errors"]:
-                app_logger.log_error(error, {"response_validation": "failed"})
-            
-            # Extract mood manually as fallback
-            content = response.choices[0].message.content
-            lines = content.strip().split("\n", 1)
-            emoji_label = lines[0].strip()
-            explanation = lines[1].strip() if len(lines) > 1 else "No explanation provided."
-            
-            return emoji_label, explanation
+ 
+        content = response.choices[0].message.content
+        lines = content.strip().split("\n", 1)
+        emoji_label = lines[0].strip()
+        explanation = lines[1].strip() if len(lines) > 1 else "No explanation provided."
         
-        # Use validated and structured response
-        cleaned_response = validation_result["cleaned_response"]
-        return cleaned_response["mood_label"], cleaned_response["explanation"]
+        return emoji_label, explanation
+
     except Exception as e:
         app_logger.log_error(e, {"function": "analyze_mood"})
         return "🤖 Error", f"Mood analysis error: {str(e)}"
