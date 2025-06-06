@@ -67,3 +67,15 @@ Interview Question: How do you handle changes in project scope or unexpected cha
 Interview Question: What technical skills or tools do you find most valuable in your role as a Technical Project Manager, and why?
 
 As a Technical Project Manager, I leverage my skills in task prioritization and system establishment to manage multiple projects effectively. Utilizing interactive panels, we review timelines and backlogs with stakeholders, enabling sprint-wise feature additions for real-time testing and progress visualization. This strategic approach not only streamlines product development but also fosters stakeholder engagement and team collaboration.
+
+
+Interview Question: What specific tools or software have you used to facilitate project management and team collaboration?
+
+
+In managing projects and fostering team collaboration, I have effectively utilized tools such as Jira and MS Project. Additionally, Confluence has been instrumental in my work for knowledge management. My proficiency in Python has also enabled me to automate tasks and streamline processes. Furthermore, I've applied process analysis techniques along with Six Sigma methodologies to drive efficiency and quality in our operations. These experiences have not only honed my technical skills but also enhanced my ability to lead teams towards achieving project goals successfully.I'm really interested in how your team manages communication across different locations
+
+
+Interview Question: How do you ensure effective communication and collaboration among team members, especially when dealing with remote teams?
+
+
+To ensure effective communication and collaboration, especially with remote teams, I prioritize regular meetings. These are not just ordinary sessions; they're structured and purpose-driven to maximize productivity. I leverage digital tools like Zoom or Microsoft Teams for seamless connectivity. Additionally, I encourage open dialogue and foster an environment where everyone feels heard and valued. My approach has consistently resulted in improved team cohesion and project success rates even across different time zones.I'm really interested in hearing about the  companies communcaiotn cultures!
