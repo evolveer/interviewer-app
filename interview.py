@@ -304,6 +304,7 @@ def display_score_chart(scores: dict):
     st.pyplot(fig)
 
 @log_api(app_logger)
+
 def generate_ideal_answer(question, role):
     """
     Generate an ideal answer to an interview question.
