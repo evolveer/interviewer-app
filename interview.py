@@ -14,7 +14,7 @@ Features:
 
 Author: Kyra Cole added some improvments from AI
 Date: 2025-06-05
-Version: 2.0
+Version: 2.2
 
 This code is licensed under the MIT License.
 """
